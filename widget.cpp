@@ -8,6 +8,8 @@
 #include <QGraphicsTextItem>
 #include <QRandomGenerator>
 #include <QSet>
+#include <QQueue>
+
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -114,127 +116,145 @@ void Widget::runDFS(const QString &graphData)
     QGraphicsView *view = new QGraphicsView(scene);
     view->show();
 }
-
 void Widget::runBFS(const QString &graphData)
 {
-    // Получаем начальную и конечную точки из QTextEdit
-    QString startVertex = ui->textEdit_2->toPlainText().trimmed();
-    QString endVertex = ui->textEdit_3->toPlainText().trimmed();
-    bool shortestPath = !startVertex.isEmpty() && !endVertex.isEmpty(); // Проверяем, заполнены ли поля начальной и конечной точек
 
-    // Получаем список вершин и ребер из строки данных
-    QStringList lines = graphData.split("\n", Qt::SkipEmptyParts);
-    QGraphicsScene *scene = new QGraphicsScene;
+}
 
-    int x = 0;
-    int y = 0;
 
-    // Словарь для хранения координат вершин
-    QMap<QString, QPointF> verticesCoords;
+// Функция для поиска всех кратчайших путей между startVertex и endVertex
+QList<QList<QString>> Widget::findShortestPathsDijkstra(const QString &startVertex, const QString &endVertex, const QStringList &lines)
+{
+    QList<QList<QString>> allShortestPaths;
 
-    // Обход каждой строки данных
-    foreach(const QString &line, lines) {
-        QStringList vertices = line.split(" ", Qt::SkipEmptyParts);
-        QString parentVertex = vertices.at(0);
-        QPointF parentVertexPos(x, y);
-        verticesCoords.insert(parentVertex, parentVertexPos);
+    // Создаем QMap для хранения предков вершин в кратчайших путях
+    QMap<QString, QStringList> parentMap;
 
-        // Добавляем вершину на сцену
-        QGraphicsEllipseItem *item = scene->addEllipse(x, y, 20, 20);
-        QGraphicsTextItem *text = scene->addText(parentVertex);
-        text->setPos(x, y - 20);
+    // Создаем QMap для хранения уровней вершин в графе
+    QMap<QString, int> levelMap;
 
-        // Обход смежных вершин для текущей вершины
-        for (int i = 1; i < vertices.size(); ++i) {
-            QString childVertex = vertices.at(i);
-            QPointF childVertexPos;
-            // Если координаты дочерней вершины уже были определены, используем их
-            if (verticesCoords.contains(childVertex)) {
-                childVertexPos = verticesCoords.value(childVertex);
-            } else {
-                // Иначе создаем новую координату для дочерней вершины
-                x += 50;
-                childVertexPos.setX(x);
-                childVertexPos.setY(y);
-                verticesCoords.insert(childVertex, childVertexPos);
+    // Создаем очередь для BFS
+    QQueue<QString> queue;
 
-                // Добавляем вершину на сцену
-                item = scene->addEllipse(x, y, 20, 20);
-                text = scene->addText(childVertex);
-                text->setPos(x, y - 20);
+    // Начальная вершина имеет уровень 0
+    levelMap.insert(startVertex, 0);
+
+    // Добавляем начальную вершину в очередь
+    queue.enqueue(startVertex);
+
+    // Пока очередь не пуста
+    while (!queue.isEmpty()) {
+        QString currentVertex = queue.dequeue();
+        int currentLevel = levelMap.value(currentVertex);
+
+        // Если мы дошли до конечной вершины, строим кратчайший путь
+        if (currentVertex == endVertex) {
+            QList<QString> path;
+            QString vertex = endVertex;
+
+            // Восстанавливаем кратчайший путь от конечной к начальной вершине
+            while (!vertex.isEmpty()) {
+                path.prepend(vertex);
+                vertex = parentMap.value(vertex).isEmpty() ? "" : parentMap.value(vertex).first();
             }
 
-            // Добавляем ребро между вершинами
-            scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
-                           childVertexPos.x() + 10, childVertexPos.y() + 10);
+            // Добавляем кратчайший путь в список всех кратчайших путей
+            allShortestPaths.append(path);
         }
-        y += 50;
-        x = 0;
+
+        // Обходим смежные вершины текущей вершины
+        foreach(const QString &line, lines) {
+            QStringList vertices = line.split(" ", Qt::SkipEmptyParts);
+            QString parentVertex = vertices.at(0);
+
+            // Если текущая вершина совпадает с родительской вершиной
+            if (parentVertex == currentVertex) {
+                // Обходим смежные вершины
+                for (int i = 1; i < vertices.size(); ++i) {
+                    QString childVertex = vertices.at(i);
+
+                    // Если дочерняя вершина еще не посещена
+                    if (!levelMap.contains(childVertex)) {
+                        // Устанавливаем уровень дочерней вершины
+                        levelMap.insert(childVertex, currentLevel + 1);
+
+                        // Добавляем дочернюю вершину в очередь
+                        queue.enqueue(childVertex);
+
+                        // Добавляем текущую вершину в список предков дочерней вершины
+                        QStringList parents = parentMap.value(childVertex);
+                        parents.append(parentVertex);
+                        parentMap.insert(childVertex, parents);
+                    }
+                }
+            }
+        }
     }
 
-    // Если начальная и конечная точки заполнены, запустите BFS для поиска кратчайшего пути
-    if (shortestPath) {
-        // Здесь запустите алгоритм BFS для поиска кратчайшего пути между startVertex и endVertex
-        // Затем, отобразите кратчайший путь на сцене, например, красной линией
-    }
-
-    // Создаем вид сцены и отображаем его
-    QGraphicsView *view = new QGraphicsView(scene);
-    view->show();
+    return allShortestPaths;
 }
+
+
 
 
 void Widget::runDijkstra(const QString &graphData)
 {
+    // Получаем начальную и конечную точки из QTextEdit
+    QString startVertex = ui->textEdit_2->toPlainText().trimmed();
+    QString endVertex = ui->textEdit_3->toPlainText().trimmed();
+
     // Получаем список вершин и ребер из строки данных
     QStringList lines = graphData.split("\n", Qt::SkipEmptyParts);
     QGraphicsScene *scene = new QGraphicsScene;
 
-    int x = 0;
-    int y = 0;
-
     // Словарь для хранения координат вершин
     QMap<QString, QPointF> verticesCoords;
 
-    // Обход каждой строки данных
+    // Обход каждой строки данных для построения графа на сцене
     foreach(const QString &line, lines) {
         QStringList vertices = line.split(" ", Qt::SkipEmptyParts);
         QString parentVertex = vertices.at(0);
-        QPointF parentVertexPos(x, y);
-        verticesCoords.insert(parentVertex, parentVertexPos);
-
-        // Добавляем вершину на сцену
-        QGraphicsEllipseItem *item = scene->addEllipse(x, y, 20, 20);
-        QGraphicsTextItem *text = scene->addText(parentVertex);
-        text->setPos(x, y - 20);
+        QPointF parentVertexPos = verticesCoords.value(parentVertex, QPointF());
+        if (parentVertexPos.isNull()) {
+            parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
+            verticesCoords.insert(parentVertex, parentVertexPos);
+            scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 20, 20);
+            scene->addText(parentVertex)->setPos(parentVertexPos.x(), parentVertexPos.y() - 20);
+        }
 
         // Обход смежных вершин для текущей вершины
         for (int i = 1; i < vertices.size(); ++i) {
             QString childVertex = vertices.at(i);
-            QPointF childVertexPos;
-            // Если координаты дочерней вершины уже были определены, используем их
-            if (verticesCoords.contains(childVertex)) {
-                childVertexPos = verticesCoords.value(childVertex);
-            } else {
-                // Иначе создаем новую координату для дочерней вершины
-                x += 50;
-                childVertexPos.setX(x);
-                childVertexPos.setY(y);
+            QPointF childVertexPos = verticesCoords.value(childVertex, QPointF());
+            if (childVertexPos.isNull()) {
+                childVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
                 verticesCoords.insert(childVertex, childVertexPos);
-
-                // Добавляем вершину на сцену
-                item = scene->addEllipse(x, y, 20, 20);
-                text = scene->addText(childVertex);
-                text->setPos(x, y - 20);
+                scene->addEllipse(childVertexPos.x(), childVertexPos.y(), 20, 20);
+                scene->addText(childVertex)->setPos(childVertexPos.x(), childVertexPos.y() - 20);
             }
 
             // Добавляем ребро между вершинами
             scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
                            childVertexPos.x() + 10, childVertexPos.y() + 10);
-
         }
-        y += 50;
-        x = 0;
+    }
+
+    // Используем BFS для поиска всех кратчайших путей между startVertex и endVertex
+    QList<QList<QString>> allShortestPaths = findShortestPathsDijkstra(startVertex, endVertex, lines);
+
+    // Визуализация всех кратчайших путей красным цветом
+    foreach (const QList<QString> &path, allShortestPaths) {
+        for (int i = 0; i < path.size() - 1; ++i) {
+            QString currentVertex = path[i];
+            QString nextVertex = path[i + 1];
+            QPointF currentVertexPos = verticesCoords.value(currentVertex);
+            QPointF nextVertexPos = verticesCoords.value(nextVertex);
+            if (!currentVertexPos.isNull() && !nextVertexPos.isNull()) {
+                QPen redPen(Qt::red);
+                scene->addLine(currentVertexPos.x() + 10, currentVertexPos.y() + 10,
+                               nextVertexPos.x() + 10, nextVertexPos.y() + 10, redPen);
+            }
+        }
     }
 
     // Создаем вид сцены и отображаем его

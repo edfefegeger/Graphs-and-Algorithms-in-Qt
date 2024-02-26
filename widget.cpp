@@ -51,6 +51,12 @@ void Widget::visualizeGraph()
 
 void Widget::runDFS(const QString &graphData)
 {
+    // Получаем начальную и конечную точки из QTextEdit
+    QString startVertex = ui->textEdit_2->toPlainText().trimmed();
+    QString endVertex = ui->textEdit_3->toPlainText().trimmed();
+
+    // Реализуйте алгоритм поиска кратчайшего пути здесь
+
     // Получаем список вершин и ребер из строки данных
     QStringList lines = graphData.split("\n", Qt::SkipEmptyParts);
     QGraphicsScene *scene = new QGraphicsScene;
@@ -86,8 +92,17 @@ void Widget::runDFS(const QString &graphData)
 
             // Проверяем, не добавлено ли ребро между этими вершинами ранее
             if (!addedEdges.contains(qMakePair(parentVertex, childVertex))) {
-                scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
-                               childVertexPos.x() + 10, childVertexPos.y() + 10);
+                // Если вершины соответствуют начальной и конечной точке, рисуем красную линию
+                if ((parentVertex == startVertex && childVertex == endVertex) || (parentVertex == endVertex && childVertex == startVertex)) {
+                    QPen redPen(Qt::red);
+                    scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
+                                   childVertexPos.x() + 10, childVertexPos.y() + 10, redPen);
+                } else {
+                    // Иначе рисуем обычную линию
+                    scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
+                                   childVertexPos.x() + 10, childVertexPos.y() + 10);
+                }
+
                 // Добавляем ребро в сет уже добавленных ребер
                 addedEdges.insert(qMakePair(parentVertex, childVertex));
                 addedEdges.insert(qMakePair(childVertex, parentVertex)); // Добавляем обратное ребро
@@ -102,6 +117,11 @@ void Widget::runDFS(const QString &graphData)
 
 void Widget::runBFS(const QString &graphData)
 {
+    // Получаем начальную и конечную точки из QTextEdit
+    QString startVertex = ui->textEdit_2->toPlainText().trimmed();
+    QString endVertex = ui->textEdit_3->toPlainText().trimmed();
+    bool shortestPath = !startVertex.isEmpty() && !endVertex.isEmpty(); // Проверяем, заполнены ли поля начальной и конечной точек
+
     // Получаем список вершин и ребер из строки данных
     QStringList lines = graphData.split("\n", Qt::SkipEmptyParts);
     QGraphicsScene *scene = new QGraphicsScene;
@@ -147,16 +167,22 @@ void Widget::runBFS(const QString &graphData)
             // Добавляем ребро между вершинами
             scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
                            childVertexPos.x() + 10, childVertexPos.y() + 10);
-
         }
         y += 50;
         x = 0;
+    }
+
+    // Если начальная и конечная точки заполнены, запустите BFS для поиска кратчайшего пути
+    if (shortestPath) {
+        // Здесь запустите алгоритм BFS для поиска кратчайшего пути между startVertex и endVertex
+        // Затем, отобразите кратчайший путь на сцене, например, красной линией
     }
 
     // Создаем вид сцены и отображаем его
     QGraphicsView *view = new QGraphicsView(scene);
     view->show();
 }
+
 
 void Widget::runDijkstra(const QString &graphData)
 {

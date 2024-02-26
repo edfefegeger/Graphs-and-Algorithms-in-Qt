@@ -24,6 +24,7 @@ private slots:
 private:
     Ui::Widget *ui;
     QList<QList<QString>> findShortestPathsDijkstra(const QString &startVertex, const QString &endVertex, const QStringList &lines);
+    QList<QList<QString>> findShortestPathsBFS(const QString &startVertex, const QString &endVertex, const QStringList &lines);
 };
 
 #endif // WIDGET_H

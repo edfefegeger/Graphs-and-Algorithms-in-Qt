@@ -141,7 +141,10 @@ void Widget::runBFS(const QString &graphData)
         if (parentVertexPos.isNull()) {
             parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
             verticesCoords.insert(parentVertex, parentVertexPos);
-            scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
+            if (parentVertex == startVertex)
+                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
+            else
+                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
             scene->addText(parentVertex)->setPos(parentVertexPos.x(), parentVertexPos.y() - 20);
         }
 
@@ -197,6 +200,11 @@ void Widget::runBFS(const QString &graphData)
             }
         }
     }
+
+    // Создаем кружок для финишной точки
+    QPointF endVertexPos = verticesCoords.value(endVertex);
+    if (!endVertexPos.isNull())
+        scene->addEllipse(endVertexPos.x(), endVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для финишной точки
 
     // Создаем вид сцены и отображаем его
     QGraphicsView *view = new QGraphicsView(scene);
@@ -372,7 +380,12 @@ void Widget::runDijkstra(const QString &graphData)
         if (parentVertexPos.isNull()) {
             parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
             verticesCoords.insert(parentVertex, parentVertexPos);
-            scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
+            if (parentVertex == startVertex)
+                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
+            else if (parentVertex == endVertex)
+                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
+            else
+                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
             scene->addText(parentVertex)->setPos(parentVertexPos.x(), parentVertexPos.y() - 20);
         }
 
@@ -414,6 +427,10 @@ void Widget::runDijkstra(const QString &graphData)
             }
         }
     }
+    // Создаем кружок для финишной точки
+    QPointF endVertexPos = verticesCoords.value(endVertex);
+    if (!endVertexPos.isNull())
+        scene->addEllipse(endVertexPos.x(), endVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для финишной точки
 
     // Создаем вид сцены и отображаем его
     QGraphicsView *view = new QGraphicsView(scene);

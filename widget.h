@@ -25,6 +25,8 @@ private:
     Ui::Widget *ui;
     QList<QList<QString>> findShortestPathsDijkstra(const QString &startVertex, const QString &endVertex, const QStringList &lines);
     QList<QList<QString>> findShortestPathsBFS(const QString &startVertex, const QString &endVertex, const QStringList &lines);
+    QList<QList<QString>> findAllPathsDFS(const QString &startVertex, const QString &endVertex, const QStringList &lines);
+    void findAllPathsDFSRecursive(const QString &currentVertex, const QString &endVertex, const QStringList &lines, QSet<QString> &visitedVertices, QList<QString> &currentPath, QList<QList<QString>> &allPaths);
 };
 
 #endif // WIDGET_H

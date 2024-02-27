@@ -57,8 +57,6 @@ void Widget::runDFS(const QString &graphData)
     QString startVertex = ui->textEdit_2->toPlainText().trimmed();
     QString endVertex = ui->textEdit_3->toPlainText().trimmed();
 
-    // Реализуйте алгоритм поиска кратчайшего пути здесь
-
     // Получаем список вершин и ребер из строки данных
     QStringList lines = graphData.split("\n", Qt::SkipEmptyParts);
     QGraphicsScene *scene = new QGraphicsScene;
@@ -69,7 +67,7 @@ void Widget::runDFS(const QString &graphData)
     // Сет для хранения уже добавленных ребер
     QSet<QPair<QString, QString>> addedEdges;
 
-    // Обход каждой строки данных
+    // Обход каждой строки данных для построения графа на сцене
     foreach(const QString &line, lines) {
         QStringList vertices = line.split(" ", Qt::SkipEmptyParts);
         QString parentVertex = vertices.at(0);
@@ -77,8 +75,6 @@ void Widget::runDFS(const QString &graphData)
         if (parentVertexPos.isNull()) {
             parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
             verticesCoords.insert(parentVertex, parentVertexPos);
-            scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 20, 20);
-            scene->addText(parentVertex)->setPos(parentVertexPos.x(), parentVertexPos.y() - 20);
         }
 
         // Обход смежных вершин для текущей вершины
@@ -88,27 +84,54 @@ void Widget::runDFS(const QString &graphData)
             if (childVertexPos.isNull()) {
                 childVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
                 verticesCoords.insert(childVertex, childVertexPos);
-                scene->addEllipse(childVertexPos.x(), childVertexPos.y(), 20, 20);
-                scene->addText(childVertex)->setPos(childVertexPos.x(), childVertexPos.y() - 20);
             }
 
-            // Проверяем, не добавлено ли ребро между этими вершинами ранее
-            if (!addedEdges.contains(qMakePair(parentVertex, childVertex))) {
-                // Если вершины соответствуют начальной и конечной точке, рисуем красную линию
-                if ((parentVertex == startVertex && childVertex == endVertex) || (parentVertex == endVertex && childVertex == startVertex)) {
-                    QPen redPen(Qt::red);
-                    scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
-                                   childVertexPos.x() + 10, childVertexPos.y() + 10, redPen);
-                } else {
-                    // Иначе рисуем обычную линию
-                    scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
-                                   childVertexPos.x() + 10, childVertexPos.y() + 10);
-                }
+            // Добавляем ребро между вершинами
+            QPen pen(Qt::black);
+            pen.setWidth(2); // Устанавливаем толщину линии
+            scene->addLine(parentVertexPos.x() + 17, parentVertexPos.y() + 17,
+                           childVertexPos.x() + 17, childVertexPos.y() + 17, pen);
 
-                // Добавляем ребро в сет уже добавленных ребер
-                addedEdges.insert(qMakePair(parentVertex, childVertex));
-                addedEdges.insert(qMakePair(childVertex, parentVertex)); // Добавляем обратное ребро
+            // Добавляем ребро в сет уже добавленных ребер
+            addedEdges.insert(qMakePair(parentVertex, childVertex));
+            addedEdges.insert(qMakePair(childVertex, parentVertex)); // Добавляем обратное ребро
+        }
+    }
+
+    // Используем DFS для поиска всех путей между startVertex и endVertex
+    QList<QList<QString>> allPaths = findAllPathsDFS(startVertex, endVertex, lines);
+
+    // Визуализация всех путей красным цветом
+    foreach (const QList<QString> &path, allPaths) {
+        for (int i = 0; i < path.size() - 1; ++i) {
+            QString currentVertex = path[i];
+            QString nextVertex = path[i + 1];
+            QPointF currentVertexPos = verticesCoords.value(currentVertex);
+            QPointF nextVertexPos = verticesCoords.value(nextVertex);
+            if (!currentVertexPos.isNull() && !nextVertexPos.isNull()) {
+                QPen redPen(Qt::red);
+                redPen.setWidth(3); // Устанавливаем толщину красной линии
+                scene->addLine(currentVertexPos.x() + 17, currentVertexPos.y() + 17,
+                               nextVertexPos.x() + 17, nextVertexPos.y() + 17, redPen);
             }
+        }
+    }
+
+    // Теперь, когда все линии добавлены, добавим круги для вершин
+    foreach(const QString &vertex, verticesCoords.keys()) {
+        QPointF vertexPos = verticesCoords.value(vertex);
+        if (!vertexPos.isNull()) {
+            if (vertex == startVertex)
+                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
+            else if (vertex == endVertex)
+                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
+            else
+                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
+            QGraphicsTextItem *textItem = scene->addText(vertex);
+            textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
+            QFont font = textItem->font();
+            font.setPointSize(14);
+            textItem->setFont(font);
         }
     }
 
@@ -117,6 +140,56 @@ void Widget::runDFS(const QString &graphData)
     view->setRenderHint(QPainter::Antialiasing);
     view->show();
 }
+
+QList<QList<QString>> Widget::findAllPathsDFS(const QString &startVertex, const QString &endVertex, const QStringList &lines)
+{
+    QList<QList<QString>> allPaths;
+    QList<QString> currentPath;
+
+    // Сет для отслеживания посещенных вершин
+    QSet<QString> visitedVertices;
+
+    // Вызываем рекурсивную функцию DFS
+    findAllPathsDFSRecursive(startVertex, endVertex, lines, visitedVertices, currentPath, allPaths);
+
+    return allPaths;
+}
+
+void Widget::findAllPathsDFSRecursive(const QString &currentVertex, const QString &endVertex, const QStringList &lines, QSet<QString> &visitedVertices, QList<QString> &currentPath, QList<QList<QString>> &allPaths)
+{
+    // Добавляем текущую вершину в текущий путь
+    currentPath.append(currentVertex);
+    visitedVertices.insert(currentVertex);
+
+    // Если мы достигли конечной вершины, добавляем текущий путь в список всех путей
+    if (currentVertex == endVertex) {
+        allPaths.append(currentPath);
+    } else {
+        // Продолжаем DFS для всех смежных вершин текущей вершины
+        foreach(const QString &line, lines) {
+            QStringList vertices = line.split(" ", Qt::SkipEmptyParts);
+            QString parentVertex = vertices.at(0);
+
+            // Если текущая вершина совпадает с родительской вершиной
+            if (parentVertex == currentVertex) {
+                // Обходим смежные вершины
+                for (int i = 1; i < vertices.size(); ++i) {
+                    QString childVertex = vertices.at(i);
+
+                    // Если дочерняя вершина не была посещена, вызываем рекурсивно DFS для нее
+                    if (!visitedVertices.contains(childVertex)) {
+                        findAllPathsDFSRecursive(childVertex, endVertex, lines, visitedVertices, currentPath, allPaths);
+                    }
+                }
+            }
+        }
+    }
+
+    // Удаляем текущую вершину из текущего пути и отмечаем ее как непосещенную
+    currentPath.removeLast();
+    visitedVertices.remove(currentVertex);
+}
+
 void Widget::runBFS(const QString &graphData)
 {
     // Получаем начальную и конечную точки из QTextEdit

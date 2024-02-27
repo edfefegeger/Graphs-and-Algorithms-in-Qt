@@ -114,6 +114,7 @@ void Widget::runDFS(const QString &graphData)
 
     // Создаем вид сцены и отображаем его
     QGraphicsView *view = new QGraphicsView(scene);
+    view->setRenderHint(QPainter::Antialiasing);
     view->show();
 }
 void Widget::runBFS(const QString &graphData)
@@ -140,7 +141,7 @@ void Widget::runBFS(const QString &graphData)
         if (parentVertexPos.isNull()) {
             parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
             verticesCoords.insert(parentVertex, parentVertexPos);
-            scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 20, 20);
+            scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
             scene->addText(parentVertex)->setPos(parentVertexPos.x(), parentVertexPos.y() - 20);
         }
 
@@ -151,7 +152,7 @@ void Widget::runBFS(const QString &graphData)
             if (childVertexPos.isNull()) {
                 childVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
                 verticesCoords.insert(childVertex, childVertexPos);
-                scene->addEllipse(childVertexPos.x(), childVertexPos.y(), 20, 20);
+                scene->addEllipse(childVertexPos.x(), childVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
                 scene->addText(childVertex)->setPos(childVertexPos.x(), childVertexPos.y() - 20);
             }
 
@@ -160,12 +161,15 @@ void Widget::runBFS(const QString &graphData)
                 // Если вершины соответствуют начальной и конечной точке, рисуем красную линию
                 if ((parentVertex == startVertex && childVertex == endVertex) || (parentVertex == endVertex && childVertex == startVertex)) {
                     QPen redPen(Qt::red);
-                    scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
-                                   childVertexPos.x() + 10, childVertexPos.y() + 10, redPen);
+                    redPen.setWidth(3); // Устанавливаем толщину красной линии
+                    scene->addLine(parentVertexPos.x() + 12, parentVertexPos.y() + 12,
+                                   childVertexPos.x() + 12, childVertexPos.y() + 12, redPen);
                 } else {
                     // Иначе рисуем обычную линию
-                    scene->addLine(parentVertexPos.x() + 10, parentVertexPos.y() + 10,
-                                   childVertexPos.x() + 10, childVertexPos.y() + 10);
+                    QPen pen(Qt::black);
+                    pen.setWidth(2); // Устанавливаем толщину линии
+                    scene->addLine(parentVertexPos.x() + 12, parentVertexPos.y() + 12,
+                                   childVertexPos.x() + 12, childVertexPos.y() + 12, pen);
                 }
 
                 // Добавляем ребро в сет уже добавленных ребер
@@ -187,16 +191,19 @@ void Widget::runBFS(const QString &graphData)
             QPointF nextVertexPos = verticesCoords.value(nextVertex);
             if (!currentVertexPos.isNull() && !nextVertexPos.isNull()) {
                 QPen redPen(Qt::red);
-                scene->addLine(currentVertexPos.x() + 10, currentVertexPos.y() + 10,
-                               nextVertexPos.x() + 10, nextVertexPos.y() + 10, redPen);
+                redPen.setWidth(3); // Устанавливаем толщину красной линии
+                scene->addLine(currentVertexPos.x() + 12, currentVertexPos.y() + 12,
+                               nextVertexPos.x() + 12, nextVertexPos.y() + 12, redPen);
             }
         }
     }
 
     // Создаем вид сцены и отображаем его
     QGraphicsView *view = new QGraphicsView(scene);
+    view->setRenderHint(QPainter::Antialiasing);
     view->show();
 }
+
 
 QList<QList<QString>> Widget::findShortestPathsBFS(const QString &startVertex, const QString &endVertex, const QStringList &lines)
 {

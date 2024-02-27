@@ -36,6 +36,11 @@
          <height>300</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
       </widget>
      </item>
      <item>
@@ -58,6 +63,11 @@
          <height>30</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
       </widget>
      </item>
      <item>
@@ -79,6 +89,11 @@
          <width>16777215</width>
          <height>30</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
        </property>
       </widget>
      </item>

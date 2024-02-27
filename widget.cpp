@@ -141,11 +141,6 @@ void Widget::runBFS(const QString &graphData)
         if (parentVertexPos.isNull()) {
             parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
             verticesCoords.insert(parentVertex, parentVertexPos);
-            if (parentVertex == startVertex)
-                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
-            else
-                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
-            scene->addText(parentVertex)->setPos(parentVertexPos.x(), parentVertexPos.y() - 20);
         }
 
         // Обход смежных вершин для текущей вершины
@@ -155,8 +150,6 @@ void Widget::runBFS(const QString &graphData)
             if (childVertexPos.isNull()) {
                 childVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
                 verticesCoords.insert(childVertex, childVertexPos);
-                scene->addEllipse(childVertexPos.x(), childVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
-                scene->addText(childVertex)->setPos(childVertexPos.x(), childVertexPos.y() - 20);
             }
 
             // Проверяем, не добавлено ли ребро между этими вершинами ранее
@@ -201,16 +194,41 @@ void Widget::runBFS(const QString &graphData)
         }
     }
 
-    // Создаем кружок для финишной точки
+    // Теперь добавим круги для вершин
+    foreach(const QString &vertex, verticesCoords.keys()) {
+        QPointF vertexPos = verticesCoords.value(vertex);
+        if (!vertexPos.isNull()) {
+            if (vertex == startVertex)
+                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
+            else
+                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
+            QGraphicsTextItem *textItem = scene->addText(vertex);
+            textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
+            QFont font = textItem->font();
+            font.setPointSize(14);
+            textItem->setFont(font);
+        }
+    }
+
+    // Добавляем круг для конечной точки (красный)
     QPointF endVertexPos = verticesCoords.value(endVertex);
-    if (!endVertexPos.isNull())
-        scene->addEllipse(endVertexPos.x(), endVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для финишной точки
+    if (!endVertexPos.isNull()) {
+        scene->addEllipse(endVertexPos.x(), endVertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для финишной точки
+        QGraphicsTextItem *textItem = scene->addText(endVertex);
+        textItem->setPos(endVertexPos.x() + 12, endVertexPos.y() + 7); // Позиция текста в центре круга
+        QFont font = textItem->font();
+        font.setPointSize(14);
+        textItem->setFont(font);
+    }
 
     // Создаем вид сцены и отображаем его
     QGraphicsView *view = new QGraphicsView(scene);
     view->setRenderHint(QPainter::Antialiasing);
     view->show();
 }
+
+
+
 
 
 QList<QList<QString>> Widget::findShortestPathsBFS(const QString &startVertex, const QString &endVertex, const QStringList &lines)
@@ -380,13 +398,6 @@ void Widget::runDijkstra(const QString &graphData)
         if (parentVertexPos.isNull()) {
             parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
             verticesCoords.insert(parentVertex, parentVertexPos);
-            if (parentVertex == startVertex)
-                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
-            else if (parentVertex == endVertex)
-                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
-            else
-                scene->addEllipse(parentVertexPos.x(), parentVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
-            scene->addText(parentVertex)->setPos(parentVertexPos.x(), parentVertexPos.y() - 20);
         }
 
         // Обход смежных вершин для текущей вершины
@@ -396,16 +407,13 @@ void Widget::runDijkstra(const QString &graphData)
             if (childVertexPos.isNull()) {
                 childVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
                 verticesCoords.insert(childVertex, childVertexPos);
-                scene->addEllipse(childVertexPos.x(), childVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
-                scene->addText(childVertex)->setPos(childVertexPos.x(), childVertexPos.y() - 20);
             }
 
             // Добавляем ребро между вершинами с более толстой кистью
             QPen pen;
             pen.setWidth(2); // Устанавливаем толщину линии
-            scene->addLine(parentVertexPos.x() + 12, parentVertexPos.y() + 12,
-                           childVertexPos.x() + 12, childVertexPos.y() + 12, pen);
-
+            scene->addLine(parentVertexPos.x() + 17, parentVertexPos.y() + 17,
+                           childVertexPos.x() + 17, childVertexPos.y() + 17, pen);
         }
     }
 
@@ -422,20 +430,47 @@ void Widget::runDijkstra(const QString &graphData)
             if (!currentVertexPos.isNull() && !nextVertexPos.isNull()) {
                 QPen redPen(Qt::red);
                 redPen.setWidth(3); // Устанавливаем толщину красной линии
-                scene->addLine(currentVertexPos.x() + 12, currentVertexPos.y() + 12,
-                               nextVertexPos.x() + 12, nextVertexPos.y() + 12, redPen);
+                scene->addLine(currentVertexPos.x() + 17, currentVertexPos.y() + 17,
+                               nextVertexPos.x() + 17, nextVertexPos.y() + 17, redPen);
             }
         }
     }
+
+    // Теперь, когда все линии добавлены, добавим круги для вершин
+    foreach(const QString &vertex, verticesCoords.keys()) {
+        QPointF vertexPos = verticesCoords.value(vertex);
+        if (!vertexPos.isNull()) {
+            if (vertex == startVertex)
+                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
+            else if (vertex == endVertex)
+                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
+            else
+                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
+            QGraphicsTextItem *textItem = scene->addText(vertex);
+            textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
+            QFont font = textItem->font();
+            font.setPointSize(14);
+            textItem->setFont(font);
+        }
+    }
+
     // Создаем кружок для финишной точки
     QPointF endVertexPos = verticesCoords.value(endVertex);
-    if (!endVertexPos.isNull())
-        scene->addEllipse(endVertexPos.x(), endVertexPos.y(), 25, 25, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для финишной точки
+    if (!endVertexPos.isNull()) {
+        QGraphicsEllipseItem *ellipseItem = scene->addEllipse(endVertexPos.x(), endVertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для финишной точки
+        ellipseItem->setFlag(QGraphicsItem::ItemIsMovable); // Разрешаем перемещение круга, если это необходимо
+        QGraphicsTextItem *textItem = scene->addText(endVertex);
+        textItem->setPos(endVertexPos.x() + 12, endVertexPos.y() + 7); // Позиция текста в центре круга
+        QFont font = textItem->font();
+        font.setPointSize(14);
+        textItem->setFont(font);
+    }
 
     // Создаем вид сцены и отображаем его
     QGraphicsView *view = new QGraphicsView(scene);
     view->setRenderHint(QPainter::Antialiasing);
     view->show();
 }
+
 
 

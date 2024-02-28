@@ -10,6 +10,7 @@
 #include <QSet>
 #include <QQueue>
 #include "information.h"
+#include <QDateTime>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -68,7 +69,9 @@ void Widget::runDFS(const QString &graphData)
         QString parentVertex = vertices.at(0);
         QPointF parentVertexPos = verticesCoords.value(parentVertex, QPointF());
         if (parentVertexPos.isNull()) {
-            parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
+            QRandomGenerator generator;
+            generator.seed(QDateTime::currentDateTime().toMSecsSinceEpoch());
+            parentVertexPos = QPointF(generator.bounded(500), generator.bounded(500));
             verticesCoords.insert(parentVertex, parentVertexPos);
         }
 
@@ -77,7 +80,7 @@ void Widget::runDFS(const QString &graphData)
             QString childVertex = vertices.at(i);
             QPointF childVertexPos = verticesCoords.value(childVertex, QPointF());
             if (childVertexPos.isNull()) {
-                childVertexPos = QPointF(qrand() % 500, qrand() % 500);
+                childVertexPos = QPointF(QRandomGenerator::global()->bounded(500), QRandomGenerator::global()->bounded(500));
                 verticesCoords.insert(childVertex, childVertexPos);
             }
 
@@ -220,7 +223,7 @@ void Widget::runBFS(const QString &graphData)
         QString parentVertex = vertices.at(0);
         QPointF parentVertexPos = verticesCoords.value(parentVertex, QPointF());
         if (parentVertexPos.isNull()) {
-            parentVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
+            parentVertexPos = QPointF(QRandomGenerator::global()->bounded(500), QRandomGenerator::global()->bounded(500));
             verticesCoords.insert(parentVertex, parentVertexPos);
         }
 
@@ -229,7 +232,7 @@ void Widget::runBFS(const QString &graphData)
             QString childVertex = vertices.at(i);
             QPointF childVertexPos = verticesCoords.value(childVertex, QPointF());
             if (childVertexPos.isNull()) {
-                childVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
+                childVertexPos = QPointF(QRandomGenerator::global()->bounded(500), QRandomGenerator::global()->bounded(500));
                 verticesCoords.insert(childVertex, childVertexPos);
             }
 
@@ -494,7 +497,7 @@ void Widget::runDijkstra(const QString &graphData)
         QString parentVertex = vertices.at(0);
         QPointF parentVertexPos = verticesCoords.value(parentVertex, QPointF());
         if (parentVertexPos.isNull()) {
-            parentVertexPos = QPointF(qrand() % 500, qrand() % 500);
+            parentVertexPos = QPointF(QRandomGenerator::global()->bounded(500), QRandomGenerator::global()->bounded(500));
             verticesCoords.insert(parentVertex, parentVertexPos);
         }
 
@@ -503,13 +506,13 @@ void Widget::runDijkstra(const QString &graphData)
             QString childVertex = vertices.at(i);
             QPointF childVertexPos = verticesCoords.value(childVertex, QPointF());
             if (childVertexPos.isNull()) {
-                childVertexPos = QPointF(qrand() % 500, qrand() % 500); // Генерируем случайные координаты для вершины
+                childVertexPos = QPointF(QRandomGenerator::global()->bounded(500), QRandomGenerator::global()->bounded(500));
                 verticesCoords.insert(childVertex, childVertexPos);
             }
 
             // Добавляем ребро между вершинами с более толстой кистью
             QPen pen;
-            pen.setWidth(2); /
+            pen.setWidth(2);
             scene->addLine(parentVertexPos.x() + 17, parentVertexPos.y() + 17,
                            childVertexPos.x() + 17, childVertexPos.y() + 17, pen);
         }

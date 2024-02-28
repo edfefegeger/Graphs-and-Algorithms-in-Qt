@@ -38,6 +38,7 @@ else()
     else()
         add_executable(Graphs
             ${PROJECT_SOURCES}
+            information.h information.cpp information.ui
         )
     endif()
 endif()

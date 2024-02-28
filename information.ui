@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Information</class>
+ <widget class="QWidget" name="Information">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1021</width>
+    <height>381</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>BFS (breadth first search) — это алгоритм, используемый для обхода или поиска в графах и деревьях. 
+Он начинается с выбранной вершины 
+ и обходит сначала все доступные вершины на текущем уровне перед переходом на следующий уровень.
+Алгоритм BFS очень похож на Волновой алгоритм, 
+ так как волновой алгоритм относится к семейству алгоритмов основанных на методах поиска в ширину.
+Обход в ширину работает на основе очереди
+Сложность алгоритма обхода в ширину является линейной и равна O(V+E), где V — количество вершин графа, E — количество ребер в графе.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>DFS (depth first search) — это алгоритм, используемый для обхода или поиска в графах и деревьях. 
+ Он начинается с выбранной вершины и обходит все доступные вершины на максимальную глубину,
+ прежде чем возвращаться к следующей непосещенной вершине.
+Основное отличие BFS от DFS только в том, что BFS используется очередь а DFS используется stack,
+ в остальном алгоритм обхода практически не отличается</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Алгоритм Дейкстры — это алгоритм нахождения кратчайшего пути от одной вершины графа до всех остальных вершин. 
+ Он работает только с неотрицательными весами ребер и является одним 
+ из самых эффективных алгоритмов для нахождения кратчайших путей в графах.
+Алгоритм Дейкстры принципом работы очень похож на BFS</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

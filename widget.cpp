@@ -9,6 +9,7 @@
 #include <QRandomGenerator>
 #include <QSet>
 #include <QQueue>
+#include "information.h"
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -546,4 +547,9 @@ void Widget::runDijkstra(const QString &graphData)
 }
 
 
+void Widget::on_pushButton_2_clicked()
+{
+    Information *informationWindow = new Information();
+    informationWindow->show();
+}
 

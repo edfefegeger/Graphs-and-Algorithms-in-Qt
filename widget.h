@@ -21,6 +21,8 @@ private slots:
     void runBFS(const QString &graphData);
     void runDijkstra(const QString &graphData);
 
+    void on_pushButton_2_clicked();
+
 private:
     Ui::Widget *ui;
     QList<QList<QString>> findShortestPathsDijkstra(const QString &startVertex, const QString &endVertex, const QStringList &lines);

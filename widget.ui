@@ -24,7 +24,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Введите точки графа в столбик (Формат: &quot;1 2&quot;)</string>
+        <string>Введите точки графа в столбик (Формат: &quot;1 2&quot;, &quot;A, B&quot;)</string>
        </property>
       </widget>
      </item>
@@ -133,6 +133,24 @@
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Посмотреть информацию о алгоритмах</string>
        </property>
       </widget>
      </item>

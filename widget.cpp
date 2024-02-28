@@ -600,7 +600,7 @@ void Widget::runDijkstra(const QString &graphData)
 
 void Widget::on_pushButton_2_clicked()
 {
-    Information *Information1 = new Information(this);
+    Information *Information1 = new Information();
     Information1 -> show();
 }
 

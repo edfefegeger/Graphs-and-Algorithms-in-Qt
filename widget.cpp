@@ -122,17 +122,32 @@ void Widget::runDFS(const QString &graphData)
     foreach(const QString &vertex, verticesCoords.keys()) {
         QPointF vertexPos = verticesCoords.value(vertex);
         if (!vertexPos.isNull()) {
-            if (vertex == startVertex)
-                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
-            else if (vertex == endVertex)
-                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
-            else
-                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
-            QGraphicsTextItem *textItem = scene->addText(vertex);
-            textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
-            QFont font = textItem->font();
-            font.setPointSize(14);
-            textItem->setFont(font);
+            bool intersects = false;
+            // Проверяем, пересекается ли текущий круг с другими объектами
+            foreach (QGraphicsItem *item, scene->items()) {
+                if (item->type() == QGraphicsEllipseItem::Type) {
+                    QGraphicsEllipseItem *ellipseItem = qgraphicsitem_cast<QGraphicsEllipseItem *>(item);
+                    if (ellipseItem && ellipseItem->rect().intersects(QRectF(vertexPos.x(), vertexPos.y(), 35, 35))) {
+                        intersects = true;
+                        break;
+                    }
+                }
+            }
+
+            // Если нет пересечений, добавляем круг
+            if (!intersects) {
+                if (vertex == startVertex)
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
+                else if (vertex == endVertex)
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
+                else
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
+                QGraphicsTextItem *textItem = scene->addText(vertex);
+                textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
+                QFont font = textItem->font();
+                font.setPointSize(14);
+                textItem->setFont(font);
+            }
         }
     }
 
@@ -268,19 +283,36 @@ void Widget::runBFS(const QString &graphData)
         }
     }
 
-    // Теперь добавим круги для вершин
+    // Теперь добавим круги для вершин, предотвращая их пересечение
     foreach(const QString &vertex, verticesCoords.keys()) {
         QPointF vertexPos = verticesCoords.value(vertex);
         if (!vertexPos.isNull()) {
-            if (vertex == startVertex)
-                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
-            else
-                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
-            QGraphicsTextItem *textItem = scene->addText(vertex);
-            textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
-            QFont font = textItem->font();
-            font.setPointSize(14);
-            textItem->setFont(font);
+            bool intersects = false;
+            // Проверяем, пересекается ли текущий круг с другими объектами
+            foreach (QGraphicsItem *item, scene->items()) {
+                if (item->type() == QGraphicsEllipseItem::Type) {
+                    QGraphicsEllipseItem *ellipseItem = qgraphicsitem_cast<QGraphicsEllipseItem *>(item);
+                    if (ellipseItem && ellipseItem->rect().intersects(QRectF(vertexPos.x(), vertexPos.y(), 35, 35))) {
+                        intersects = true;
+                        break;
+                    }
+                }
+            }
+
+            // Если нет пересечений, добавляем круг
+            if (!intersects) {
+                if (vertex == startVertex)
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
+                else if (vertex == endVertex)
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
+                else
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
+                QGraphicsTextItem *textItem = scene->addText(vertex);
+                textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
+                QFont font = textItem->font();
+                font.setPointSize(14);
+                textItem->setFont(font);
+            }
         }
     }
 
@@ -511,22 +543,39 @@ void Widget::runDijkstra(const QString &graphData)
     }
 
     // Теперь, когда все линии добавлены, добавим круги для вершин
+    // Теперь добавим круги для вершин, предотвращая их пересечение
     foreach(const QString &vertex, verticesCoords.keys()) {
         QPointF vertexPos = verticesCoords.value(vertex);
         if (!vertexPos.isNull()) {
-            if (vertex == startVertex)
-                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
-            else if (vertex == endVertex)
-                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
-            else
-                scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
-            QGraphicsTextItem *textItem = scene->addText(vertex);
-            textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
-            QFont font = textItem->font();
-            font.setPointSize(14);
-            textItem->setFont(font);
+            bool intersects = false;
+            // Проверяем, пересекается ли текущий круг с другими объектами
+            foreach (QGraphicsItem *item, scene->items()) {
+                if (item->type() == QGraphicsEllipseItem::Type) {
+                    QGraphicsEllipseItem *ellipseItem = qgraphicsitem_cast<QGraphicsEllipseItem *>(item);
+                    if (ellipseItem && ellipseItem->rect().intersects(QRectF(vertexPos.x(), vertexPos.y(), 35, 35))) {
+                        intersects = true;
+                        break;
+                    }
+                }
+            }
+
+            // Если нет пересечений, добавляем круг
+            if (!intersects) {
+                if (vertex == startVertex)
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::green)); // Зеленый круг для начальной точки
+                else if (vertex == endVertex)
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(Qt::red)); // Красный круг для конечной точки
+                else
+                    scene->addEllipse(vertexPos.x(), vertexPos.y(), 35, 35, QPen(Qt::black), QBrush(QColor("#5b87b0"))); // Голубой круг
+                QGraphicsTextItem *textItem = scene->addText(vertex);
+                textItem->setPos(vertexPos.x() + 12, vertexPos.y() + 7);
+                QFont font = textItem->font();
+                font.setPointSize(14);
+                textItem->setFont(font);
+            }
         }
     }
+
 
     // Создаем кружок для финишной точки
     QPointF endVertexPos = verticesCoords.value(endVertex);
@@ -547,9 +596,11 @@ void Widget::runDijkstra(const QString &graphData)
 }
 
 
+
+
 void Widget::on_pushButton_2_clicked()
 {
-    Information *informationWindow = new Information();
-    informationWindow->show();
+    Information *Information1 = new Information(this);
+    Information1 -> show();
 }
 
